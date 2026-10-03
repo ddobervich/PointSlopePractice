@@ -1,3 +1,8 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Writing a function in point-slope form</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -40,6 +45,10 @@
     color-scheme: dark;
   }
 
+  html { color-scheme: light; }
+  body { margin: 0; }
+  img { max-width: 100%; }
+  [hidden] { display: none !important; }
   * { box-sizing: border-box; }
   body {
     background-color: var(--bg);
@@ -144,12 +153,20 @@
   .check input { margin-top: 0.3em; accent-color: var(--accent); width: 1.05em; height: 1.05em; }
   .settings .actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
+
+  dialog#video { width: min(920px, 100% - 32px); max-width: none; padding: 12px; border: 1px solid var(--rule); border-radius: 10px; background: var(--surface); color: var(--ink); }
+  dialog#video::backdrop { background: rgba(10, 16, 20, 0.7); }
+  dialog#video[open] { display: grid; gap: 12px; justify-items: end; }
+  .video-box { width: 100%; max-width: 100%; aspect-ratio: 16 / 9; }
+  .video-box iframe { width: 100%; height: 100%; border: 0; border-radius: 6px; display: block; }
   @media (prefers-reduced-motion: no-preference) {
     .feedback { animation: rise 180ms ease-out; }
     @keyframes rise { from { transform: translateY(4px); opacity: 0.4; } to { transform: none; opacity: 1; } }
   }
 </style>
 
+</head>
+<body>
 <div class="wrap">
   <header>
     <h1>Writing a function in point-slope form</h1>
@@ -197,6 +214,13 @@
     </div>
   </details>
 </div>
+
+<dialog id="video" aria-label="How to write a function in point-slope form">
+  <div class="video-box">
+    <iframe id="video-player" src="about:blank" title="How to write a function in point-slope form" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>
+  </div>
+  <button type="button" id="video-close">Close</button>
+</dialog>
 
 <script>
 /* ===================== Math helpers ===================== */
@@ -605,6 +629,20 @@ if (typeof document !== 'undefined') {
 
   $('form').addEventListener('submit', submit);
   $('skip').addEventListener('click', newProblem);
+  // Play the video in a pop-up when the page is opened directly (e.g. GitHub Pages).
+  // Inside an embedded viewer that blocks YouTube players, the link opens YouTube in a new tab instead.
+  const video = $('video'), player = $('video-player');
+  const closeVideo = () => { if (video.open) video.close(); };
+  if (window.self === window.top && typeof video.showModal === 'function') {
+    document.querySelector('.see-how').addEventListener('click', e => {
+      e.preventDefault();
+      player.src = 'https://www.youtube-nocookie.com/embed/iAb5P6FEDbU?autoplay=1&rel=0';
+      video.showModal();
+    });
+    $('video-close').addEventListener('click', closeVideo);
+    video.addEventListener('click', e => { if (e.target === video) closeVideo(); });
+    video.addEventListener('close', () => { player.src = 'about:blank'; $('answer').focus(); });
+  }
   document.querySelector('.field').addEventListener('click', () => $('answer').focus());
   $('answer').addEventListener('input', renderPreview);
   document.addEventListener('keydown', e => {
@@ -617,3 +655,5 @@ if (typeof document !== 'undefined') {
   newProblem();
 }
 </script>
+</body>
+</html>
