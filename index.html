@@ -1,0 +1,619 @@
+<title>Writing a function in point-slope form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=JetBrains+Mono:wght@400;600&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+  /* Layout: one centered work card on graph paper — prompt, graph/text, answer line, feedback; score strip above, settings below. */
+  :root {
+    --bg: #edf1f3;
+    --gridline: rgba(40, 90, 120, 0.07);
+    --surface: #ffffff;
+    --ink: #1b2a35;
+    --muted: #5a6a76;
+    --rule: #d3dde3;
+    --accent: #0f6a70;
+    --accent-ink: #ffffff;
+    --point: #c9502a;
+    --good: #1d7f47;
+    --good-bg: #e5f4ea;
+    --bad: #b8352c;
+    --bad-bg: #fbe9e7;
+    --field: #f7fafb;
+
+    --f-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+    --f-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+    --f-math: "STIX Two Text", "Cambria Math", "Times New Roman", serif;
+    --f-mono: "JetBrains Mono", Consolas, ui-monospace, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #11171c; --gridline: rgba(120, 190, 210, 0.06); --surface: #19222a; --ink: #e3ebef;
+      --muted: #94a4af; --rule: #2c3a44; --accent: #4fb1b6; --accent-ink: #0d1a1c; --point: #f08a5d;
+      --good: #5cc98a; --good-bg: #16301f; --bad: #f07a70; --bad-bg: #3a1c1a; --field: #141c22;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #11171c; --gridline: rgba(120, 190, 210, 0.06); --surface: #19222a; --ink: #e3ebef;
+    --muted: #94a4af; --rule: #2c3a44; --accent: #4fb1b6; --accent-ink: #0d1a1c; --point: #f08a5d;
+    --good: #5cc98a; --good-bg: #16301f; --bad: #f07a70; --bad-bg: #3a1c1a; --field: #141c22;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background-color: var(--bg);
+    background-image:
+      linear-gradient(var(--gridline) 1px, transparent 1px),
+      linear-gradient(90deg, var(--gridline) 1px, transparent 1px);
+    background-size: 24px 24px;
+    color: var(--ink);
+    font-family: var(--f-body);
+    font-size: 1.0625rem;
+    line-height: 1.5;
+    padding-inline: 16px;
+    padding-block: 28px 48px;
+    min-height: 100%;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; display: grid; gap: 18px; }
+
+  header { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 20px; }
+  h1 {
+    font-family: var(--f-display); font-weight: 800; font-size: clamp(1.6rem, 4vw, 2.1rem);
+    letter-spacing: -0.01em; margin: 0; text-wrap: balance;
+  }
+  .score { display: flex; gap: 16px; font-variant-numeric: tabular-nums; color: var(--muted); font-size: 0.95rem; }
+  .score b { color: var(--ink); font-weight: 700; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 10px;
+    padding: 22px clamp(16px, 4vw, 30px) 26px; display: grid; gap: 18px;
+  }
+  .eyebrow {
+    font-family: var(--f-display); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.09em;
+    text-transform: uppercase; color: var(--accent); display: flex; justify-content: space-between; gap: 12px;
+  }
+  .eyebrow span:last-child { color: var(--muted); font-variant-numeric: tabular-nums; }
+  .prompt { font-size: 1.2rem; margin: 0; text-wrap: pretty; }
+  .math { font-family: var(--f-math); font-size: 1.12em; white-space: nowrap; }
+  .math i { font-style: italic; }
+  .frac { display: inline-flex; flex-direction: column; vertical-align: middle; text-align: center; font-size: 0.86em; line-height: 1.1; margin: 0 0.1em; }
+  .frac > span:first-child { border-bottom: 1px solid currentColor; padding: 0 0.15em; }
+  .frac > span:last-child { padding: 0 0.15em; }
+
+  .graph { width: 100%; max-width: 100%; height: auto; display: block; border-radius: 6px; background: var(--field); border: 1px solid var(--rule); }
+  .graph text { font-family: var(--f-math); font-size: 17px; fill: var(--ink); paint-order: stroke; stroke: var(--field); stroke-width: 5px; stroke-linejoin: round; }
+  .graph .axis { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+  .graph .arrow { fill: var(--muted); }
+  .graph .line { stroke: var(--accent); stroke-width: 2.6; fill: none; }
+  .graph .pt { fill: var(--point); stroke: var(--field); stroke-width: 2; }
+  .graph text.axis-label { font-style: italic; fill: var(--muted); }
+
+  form { display: grid; gap: 8px; }
+  label[for="answer"] { font-weight: 700; font-size: 0.95rem; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; }
+  .field {
+    flex: 1 1 260px; min-width: 0; display: flex; align-items: center;
+    border-radius: 8px; border: 1.5px solid var(--rule); background: var(--field);
+    font-family: var(--f-mono); font-size: 1.15rem; cursor: text;
+  }
+  .field:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+  .prefix { padding-left: 14px; color: var(--ink); font-weight: 600; white-space: nowrap; user-select: none; }
+  #answer {
+    flex: 1; min-width: 0; font: inherit; padding: 12px 14px 12px 0.5em;
+    border: 0; background: transparent; color: var(--ink);
+  }
+  #answer:focus { outline: none; }
+  #answer:disabled { opacity: 0.75; }
+  button {
+    font-family: var(--f-display); font-weight: 600; font-size: 1rem; cursor: pointer;
+    padding: 12px 22px; border-radius: 8px; border: 1.5px solid var(--accent); background: var(--accent); color: var(--accent-ink);
+  }
+  button:hover { filter: brightness(1.08); }
+  button:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 2px; }
+  button.ghost { background: transparent; color: var(--accent); }
+  .preview { min-height: 1.9em; color: var(--muted); font-size: 0.95rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .preview .math { color: var(--ink); }
+  .preview.error { color: var(--bad); }
+  .hint { color: var(--muted); font-size: 0.88rem; margin: 0; }
+  .hint code { font-family: var(--f-mono); font-size: 0.95em; color: var(--ink); }
+  .prompt-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+  .prompt-row .prompt { flex: 0 1 auto; min-width: 0; }
+  .see-how { font-family: var(--f-display); font-weight: 600; color: var(--accent); text-decoration: none; border: 1.5px solid var(--accent); border-radius: 999px; padding: 3px 12px; font-size: 0.9rem; white-space: nowrap; }
+  .see-how:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+  .see-how:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 45%, transparent); outline-offset: 2px; }
+
+  .feedback { border-radius: 8px; padding: 14px 16px; display: grid; gap: 8px; border: 1.5px solid; }
+  .feedback.good { background: var(--good-bg); border-color: var(--good); }
+  .feedback.bad { background: var(--bad-bg); border-color: var(--bad); }
+  .feedback .verdict { font-family: var(--f-display); font-weight: 800; font-size: 1.25rem; margin: 0; }
+  .feedback.good .verdict { color: var(--good); }
+  .feedback.bad .verdict { color: var(--bad); }
+  .feedback p { margin: 0; }
+  .feedback .answer-line { font-size: 1.2rem; overflow-x: auto; }
+  .feedback .work { color: var(--muted); font-size: 0.95rem; overflow-x: auto; }
+  .feedback .actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+  .feedback .actions small { color: var(--muted); }
+
+  details { background: var(--surface); border: 1px solid var(--rule); border-radius: 10px; padding: 12px 18px; }
+  summary { cursor: pointer; font-family: var(--f-display); font-weight: 600; color: var(--muted); }
+  .settings { display: grid; gap: 14px; padding-top: 12px; }
+  fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: 6px; }
+  legend { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; }
+  .check { display: flex; gap: 10px; align-items: flex-start; }
+  .check input { margin-top: 0.3em; accent-color: var(--accent); width: 1.05em; height: 1.05em; }
+  .settings .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .feedback { animation: rise 180ms ease-out; }
+    @keyframes rise { from { transform: translateY(4px); opacity: 0.4; } to { transform: none; opacity: 1; } }
+  }
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Writing a function in point-slope form</h1>
+    <div class="score" aria-live="polite">
+      <span>Correct <b id="sc-correct">0</b> / <b id="sc-total">0</b></span>
+      <span>Streak <b id="sc-streak">0</b></span>
+    </div>
+  </header>
+
+  <main class="card">
+    <div class="eyebrow"><span id="kind">Problem</span><span id="num">#1</span></div>
+    <div class="prompt-row">
+      <p class="prompt" id="prompt"></p>
+      <a class="see-how" href="https://youtu.be/iAb5P6FEDbU" target="_blank" rel="noopener">See how ▶</a>
+    </div>
+    <div id="visual"></div>
+
+    <form id="form" autocomplete="off">
+      <label for="answer">Your function</label>
+      <div class="row">
+        <div class="field">
+          <span class="prefix" aria-hidden="true">f(x) =</span>
+          <input id="answer" type="text" inputmode="text" spellcheck="false" aria-label="f of x equals" aria-describedby="preview hint">
+        </div>
+        <button type="submit" id="check">Check</button>
+        <button type="button" class="ghost" id="skip">Next one</button>
+      </div>
+      <div class="preview" id="preview" aria-live="polite"></div>
+      <p class="hint" id="hint">Write fractions with a slash, like <code>2/3</code>.</p>
+    </form>
+
+    <section id="feedback" hidden></section>
+  </main>
+
+  <details>
+    <summary>Settings</summary>
+    <div class="settings">
+      <fieldset>
+        <legend>Problem types</legend>
+        <label class="check"><input type="checkbox" id="t-graph" checked> Line on a graph through two labeled points</label>
+        <label class="check"><input type="checkbox" id="t-points" checked> Line through two given points</label>
+        <label class="check"><input type="checkbox" id="t-slope" checked> Line with a given slope through a given point</label>
+      </fieldset>
+      <div class="actions"><button type="button" class="ghost" id="reset">Reset score</button></div>
+    </div>
+  </details>
+</div>
+
+<script>
+/* ===================== Math helpers ===================== */
+const rnd = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) [a, b] = [b, a % b]; return a; };
+function reduce(n, d) { if (d < 0) { n = -n; d = -d; } const g = gcd(n, d) || 1; return { n: n / g, d: d / g }; }
+
+const LARGE_MIN = 50, LARGE_MAX = 300, SMALL = 12, LARGE_CHANCE = 0.3;
+
+// A difference is "easy" if it's under 10, or a multiple of 10, or one away from a multiple of 10.
+function isEasyDiff(d) { d = Math.abs(d); if (d < 10) return true; const r = d % 10; return r === 0 || r === 1 || r === 9; }
+function easyDelta(max) {
+  const opts = [];
+  for (let d = 1; d <= max; d++) if (isEasyDiff(d)) opts.push(d, -d);
+  return pick(opts);
+}
+const smallCoord = () => rnd(-SMALL, SMALL);
+const largeCoord = () => rnd(LARGE_MIN, LARGE_MAX);
+const inLarge = v => v >= LARGE_MIN && v <= LARGE_MAX;
+
+// Two integer points with a non-integer slope. Large coordinates only appear with easy differences.
+// For graphs, y stays small so the x-axis can be drawn to scale with the points.
+function genTwoPoints(allowLargeY) {
+  for (;;) {
+    const large = Math.random() < LARGE_CHANCE;
+    let x1, x2, y1, y2, which = null;
+    if (!large) {
+      x1 = smallCoord(); x2 = smallCoord(); y1 = smallCoord(); y2 = smallCoord();
+    } else {
+      which = allowLargeY ? pick(['x', 'y', 'both']) : 'x';
+      if (which !== 'y') { x1 = largeCoord(); x2 = x1 + easyDelta(40); } else { x1 = smallCoord(); x2 = smallCoord(); }
+      if (which !== 'x') { y1 = largeCoord(); y2 = y1 + easyDelta(40); } else { y1 = smallCoord(); y2 = smallCoord(); }
+      if (which !== 'y' && !inLarge(x2)) continue;
+      if (which !== 'x' && !inLarge(y2)) continue;
+    }
+    const dx = x2 - x1, dy = y2 - y1;
+    if (dx === 0 || dy === 0 || dy % dx === 0) continue;
+    if (large && !(isEasyDiff(dx) && isEasyDiff(dy))) continue;
+    if (!large && Math.abs(dx) > 16) continue;
+    return { x1, y1, x2, y2, m: reduce(dy, dx) };
+  }
+}
+
+function genSlopePoint() {
+  let m;
+  do { m = reduce(rnd(1, 12) * pick([1, -1]), rnd(2, 9)); } while (m.d === 1);
+  let x, y;
+  if (Math.random() < LARGE_CHANCE) {
+    const which = pick(['x', 'y', 'both']);
+    x = which === 'y' ? smallCoord() : largeCoord();
+    y = which === 'x' ? smallCoord() : largeCoord();
+  } else { x = smallCoord(); y = smallCoord(); }
+  return { x1: x, y1: y, m };
+}
+
+const TYPES = { graph: 'Read the graph', points: 'Two points', slope: 'Slope and a point' };
+function genProblem(types) {
+  const type = pick(types);
+  if (type === 'slope') return { type, ...genSlopePoint() };
+  return { type, ...genTwoPoints(type !== 'graph') };
+}
+
+/* ===================== Equation parser ===================== */
+class ParseError extends Error {}
+
+function tokenize(src) {
+  const s = src.replace(/[−–—]/g, '-').replace(/[×·⋅]/g, '*').replace(/÷/g, '/')
+               .replace(/[\[{]/g, '(').replace(/[\]}]/g, ')').replace(/\s+/g, '').toLowerCase();
+  const toks = [];
+  for (let i = 0; i < s.length;) {
+    const c = s[i];
+    if (/[0-9.]/.test(c)) {
+      let j = i; while (j < s.length && /[0-9.]/.test(s[j])) j++;
+      const str = s.slice(i, j);
+      if (!/^(\d+\.?\d*|\.\d+)$/.test(str)) throw new ParseError(`"${str}" isn't a number.`);
+      toks.push({ t: 'num', v: parseFloat(str), int: /^\d+$/.test(str) });
+      i = j; continue;
+    }
+    if (c === 'x') { toks.push({ t: 'var', v: c }); i++; continue; }
+    if (c === 'y') throw new ParseError('Use x as the only letter. f(x) takes the place of y.');
+    if (c === '=') throw new ParseError('"f(x) =" is already filled in. Type only what comes after it.');
+    if ('+-*/()'.includes(c)) { toks.push({ t: c }); i++; continue; }
+    throw new ParseError(`"${c}" isn't something I can read. Use x, numbers, + − * / and parentheses.`);
+  }
+  // "2/3" written between whole numbers is one fraction, so 2/3(x - 1) means (2/3)(x - 1).
+  const out = [];
+  for (let k = 0; k < toks.length; k++) {
+    const a = toks[k], slash = toks[k + 1], b = toks[k + 2], prev = out[out.length - 1];
+    if (a.t === 'num' && a.int && slash && slash.t === '/' && b && b.t === 'num' && b.int && !(prev && prev.t === '/')) {
+      if (b.v === 0) throw new ParseError('A fraction can\'t have 0 on the bottom.');
+      out.push({ t: 'frac', n: a.v, d: b.v }); k += 2; continue;
+    }
+    out.push(a);
+  }
+  return out;
+}
+
+// Parses the right side of f(x) = … into a tree.
+function parseFunction(src) {
+  src = src.replace(/^\s*f\s*\(\s*x\s*\)\s*=/i, '');
+  if (!src.trim()) throw new ParseError('');
+  const toks = tokenize(src);
+  let i = 0;
+  const peek = () => toks[i], next = () => toks[i++];
+  const expect = t => { const k = next(); if (!k || k.t !== t) throw new ParseError(t === ')' ? 'A parenthesis is missing its closing ")".' : `Expected "${t}".`); };
+
+  function expr() {
+    let n = term();
+    while (peek() && (peek().t === '+' || peek().t === '-')) { const op = next().t; n = { k: op === '+' ? 'add' : 'sub', a: n, b: term() }; }
+    return n;
+  }
+  function term() {
+    let n = unary();
+    for (;;) {
+      const p = peek();
+      if (!p) break;
+      if (p.t === '*' || p.t === '/') { next(); n = { k: p.t === '*' ? 'mul' : 'div', a: n, b: unary() }; }
+      else if (p.t === 'num' || p.t === 'frac' || p.t === 'var' || p.t === '(') n = { k: 'mul', a: n, b: unary(), implicit: true };
+      else break;
+    }
+    return n;
+  }
+  function unary() {
+    const p = peek();
+    if (p && p.t === '-') { next(); return { k: 'neg', a: unary() }; }
+    if (p && p.t === '+') { next(); return unary(); }
+    return primary();
+  }
+  function primary() {
+    const p = next();
+    if (!p) throw new ParseError('The expression stops too early.');
+    if (p.t === 'num') return { k: 'num', v: p.v };
+    if (p.t === 'frac') return { k: 'frac', n: p.n, d: p.d };
+    if (p.t === 'var') return { k: 'var', v: p.v };
+    if (p.t === '(') { const n = expr(); expect(')'); return { k: 'paren', a: n }; }
+    if (p.t === ')') throw new ParseError('There is a ")" without a matching "(".');
+    throw new ParseError(`"${p.t}" is in an unexpected place.`);
+  }
+
+  const n = expr();
+  if (peek()) throw new ParseError(peek().t === ')' ? 'There is a ")" without a matching "(".' : 'Something is out of place.');
+  return n;
+}
+
+const strip = n => { while (n.k === 'paren') n = n.a; return n; };
+function ev(n, x, y) {
+  switch (n.k) {
+    case 'num': return n.v;
+    case 'frac': return n.n / n.d;
+    case 'var': return n.v === 'x' ? x : y;
+    case 'paren': return ev(n.a, x, y);
+    case 'neg': return -ev(n.a, x, y);
+    case 'add': return ev(n.a, x, y) + ev(n.b, x, y);
+    case 'sub': return ev(n.a, x, y) - ev(n.b, x, y);
+    case 'mul': return ev(n.a, x, y) * ev(n.b, x, y);
+    case 'div': return ev(n.a, x, y) / ev(n.b, x, y);
+  }
+}
+const hasVar = n => n.k === 'var' || ['paren', 'neg'].includes(n.k) && hasVar(n.a) || ['add', 'sub', 'mul', 'div'].includes(n.k) && (hasVar(n.a) || hasVar(n.b));
+const isConst = n => !hasVar(n);
+const val = n => ev(n, 0, 0);
+const isVar = (n, v) => { n = strip(n); return n.k === 'var' && n.v === v; };
+
+// If n is (v + c), return c; otherwise null.
+function varShift(n, v) {
+  n = strip(n);
+  if (isVar(n, v)) return 0;
+  if (n.k === 'add') { if (isVar(n.a, v) && isConst(n.b)) return val(n.b); if (isConst(n.a) && isVar(n.b, v)) return val(n.a); }
+  if (n.k === 'sub' && isVar(n.a, v) && isConst(n.b)) return -val(n.b);
+  return null;
+}
+// If n is m·(x + c), return {m, c, bare}; otherwise null. bare means x had no parentheses (m·x).
+function slopeTimes(n) {
+  n = strip(n);
+  if (n.k === 'neg') { const r = slopeTimes(n.a); return r && { ...r, m: -r.m }; }
+  if (n.k === 'mul') {
+    for (const [k, other] of [[n.a, n.b], [n.b, n.a]]) {
+      if (!isConst(k)) continue;
+      const c = varShift(other, 'x');
+      if (c !== null) return { m: val(k), c, bare: other.k === 'var' };
+      const r = slopeTimes(other);
+      if (r) return { ...r, m: val(k) * r.m };
+    }
+  }
+  if (n.k === 'div' && isConst(n.b)) {
+    const c = varShift(n.a, 'x');
+    const r = c !== null ? { m: 1, c, bare: n.a.k === 'var' } : slopeTimes(n.a);
+    if (r) return { ...r, m: r.m / val(n.b) };
+  }
+  return null;
+}
+// Point-slope form here means m(x − a) + b (or just m(x − a) when b is 0).
+// The (x − a) must be in parentheses, so slope-intercept mx + b doesn't count.
+function isPointSlopeForm(n) {
+  const r = strip(n);
+  const term = t => { const st = slopeTimes(t); return st && !st.bare; };
+  if (term(r)) return true;
+  return (r.k === 'add' || r.k === 'sub') && term(r.a) && isConst(r.b);
+}
+
+// Grade f(x) = expr against the line through (x1, y1) with slope m = {n, d}.
+// Returns { status: 'correct' | 'wrong-form' | 'close' | 'wrong' | 'not-linear' }.
+function grade(expr, prob) {
+  const f = x => ev(expr, x, 0);
+  const gb = f(0), gm = f(1) - gb;
+  const scale = Math.max(1, Math.abs(gm), Math.abs(gb));
+  const linear = Number.isFinite(gb) && Number.isFinite(gm) && [3.7, -5.1, 123.4, -0.4].every(x => {
+    const v = f(x); return Number.isFinite(v) && Math.abs(v - (gm * x + gb)) <= 1e-7 * scale * (1 + Math.abs(x));
+  });
+  if (!linear) return { status: 'not-linear' };
+  const m = prob.m.n / prob.m.d, b = prob.y1 - m * prob.x1;
+  if (Math.abs(gm - m) <= 1e-9 && Math.abs(gb - b) <= 1e-9 * Math.max(1, Math.abs(b))) {
+    return { status: isPointSlopeForm(expr) ? 'correct' : 'wrong-form' };
+  }
+  // Right idea but rounded decimals?
+  const near = Math.abs(gm - m) <= 0.01 * Math.max(1, Math.abs(m)) && Math.abs(gb - b) <= 0.01 * Math.max(1, Math.abs(b)) + 0.05;
+  return { status: near ? 'close' : 'wrong' };
+}
+
+/* ===================== Rendering helpers ===================== */
+const MINUS = '−';
+const num = v => (v < 0 ? MINUS : '') + Math.abs(v);
+const fracHTML = (top, bot) => `<span class="frac"><span>${top}</span><span>${bot}</span></span>`;
+const slopeHTML = m => m.d === 1 ? num(m.n) : (m.n < 0 ? MINUS : '') + fracHTML(Math.abs(m.n), m.d);
+const pointHTML = (x, y) => `(${num(x)}, ${num(y)})`;
+const V = v => `<i>${v}</i>`;
+function psHTML(m, x1, y1) {
+  const inner = `${V('x')} ${x1 < 0 ? '+' : MINUS} ${Math.abs(x1)}`;
+  const tail = y1 === 0 ? '' : ` ${y1 < 0 ? MINUS : '+'} ${Math.abs(y1)}`;
+  return `<span class="math"><i>f</i>(${V('x')}) = ${slopeHTML(m)}(${inner})${tail}</span>`;
+}
+const paren = v => v < 0 ? `(${num(v)})` : num(v);
+
+// Show how the computer read the student's input.
+function showNode(n, ctx = 0) {
+  const wrap = (s, need) => need ? `(${s})` : s;
+  switch (n.k) {
+    case 'num': return String(n.v);
+    case 'frac': return fracHTML(n.n, n.d);
+    case 'var': return V(n.v);
+    case 'paren': return showNode(n.a, ctx);
+    case 'neg': return wrap(MINUS + showNode(n.a, 2), ctx > 2);
+    case 'add': return wrap(`${showNode(n.a, 1)} + ${showNode(n.b, 1)}`, ctx > 1);
+    case 'sub': return wrap(`${showNode(n.a, 1)} ${MINUS} ${showNode(n.b, 2)}`, ctx > 1);
+    case 'mul': {
+      const b = strip(n.b);
+      const sep = (b.k === 'num' || b.k === 'frac' || b.k === 'neg') ? ' · ' : '';
+      return wrap(showNode(n.a, 2) + sep + showNode(n.b, 2), ctx > 2);
+    }
+    case 'div': return fracHTML(showNode(n.a, 0), showNode(n.b, 0));
+  }
+}
+
+function graphSVG(p) {
+  const W = 600, H = 360, padL = 30, padR = 46, padT = 30, padB = 30;
+  const span = Math.abs(p.x2 - p.x1);
+  const xmin = Math.min(p.x1, p.x2) - span * 0.4, xmax = Math.max(p.x1, p.x2) + span * 0.4;
+  const ylo = Math.min(0, p.y1, p.y2), yhi = Math.max(0, p.y1, p.y2), ys = (yhi - ylo) || 1;
+  const ymin = ylo - ys * 0.22, ymax = yhi + ys * 0.22;
+  const sx = x => padL + (x - xmin) / (xmax - xmin) * (W - padL - padR);
+  const sy = y => padT + (ymax - y) / (ymax - ymin) * (H - padT - padB);
+  const m = p.m.n / p.m.d, lineY = x => p.y1 + m * (x - p.x1);
+  const ax = sy(0);
+  // Label each point on the upper side of the line, away from it.
+  const dxs = sx(p.x2) - sx(p.x1), dys = sy(p.y2) - sy(p.y1), len = Math.hypot(dxs, dys);
+  let nx = -dys / len, ny = dxs / len;
+  if (ny > 0) { nx = -nx; ny = -ny; }
+  const label = (x, y) => {
+    let lx = sx(x) + nx * 26, ly = sy(y) + ny * 26 + 5;
+    lx = Math.min(W - 60, Math.max(60, lx)); ly = Math.min(H - 8, Math.max(20, ly));
+    return `<text x="${lx.toFixed(1)}" y="${ly.toFixed(1)}" text-anchor="middle">${pointHTML(x, y).replace(/<[^>]+>/g, '')}</text>`;
+  };
+  return `<svg class="graph" viewBox="0 0 ${W} ${H}" role="img" aria-label="A line passing through the points (${p.x1}, ${p.y1}) and (${p.x2}, ${p.y2})">
+    <defs><clipPath id="plot"><rect x="6" y="6" width="${W - 12}" height="${H - 12}"/></clipPath></defs>
+    <line class="axis" x1="14" y1="${ax}" x2="${W - 24}" y2="${ax}"/>
+    <polygon class="arrow" points="${W - 14},${ax} ${W - 26},${ax - 6} ${W - 26},${ax + 6}"/>
+    <polygon class="arrow" points="6,${ax} 18,${ax - 6} 18,${ax + 6}"/>
+    <text class="axis-label" x="${W - 18}" y="${ax - 12}" text-anchor="middle">x</text>
+    <line class="line" clip-path="url(#plot)" x1="${sx(xmin - span)}" y1="${sy(lineY(xmin - span))}" x2="${sx(xmax + span)}" y2="${sy(lineY(xmax + span))}"/>
+    <circle class="pt" cx="${sx(p.x1)}" cy="${sy(p.y1)}" r="6"/>
+    <circle class="pt" cx="${sx(p.x2)}" cy="${sy(p.y2)}" r="6"/>
+    ${label(p.x1, p.y1)}${label(p.x2, p.y2)}
+  </svg>`;
+}
+
+/* ===================== App ===================== */
+if (typeof document !== 'undefined') {
+  const $ = id => document.getElementById(id);
+  const state = { prob: null, n: 0, correct: 0, total: 0, streak: 0, answered: false, timer: null };
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('psd-' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+    set(k, v) { try { localStorage.setItem('psd-' + k, JSON.stringify(v)); } catch {} },
+  };
+  const typeBoxes = { graph: $('t-graph'), points: $('t-points'), slope: $('t-slope') };
+  for (const [k, box] of Object.entries(typeBoxes)) box.checked = store.get('type-' + k, true);
+
+  function enabledTypes() {
+    const t = Object.keys(typeBoxes).filter(k => typeBoxes[k].checked);
+    return t.length ? t : Object.keys(typeBoxes);
+  }
+
+  function updateScore() {
+    $('sc-correct').textContent = state.correct;
+    $('sc-total').textContent = state.total;
+    $('sc-streak').textContent = state.streak;
+  }
+
+  function newProblem() {
+    clearTimeout(state.timer);
+    const p = state.prob = genProblem(enabledTypes());
+    state.n++; state.answered = false;
+    $('kind').textContent = TYPES[p.type];
+    $('num').textContent = '#' + state.n;
+    if (p.type === 'graph') {
+      $('prompt').innerHTML = 'Write the function for this line in point-slope form.';
+      $('visual').innerHTML = graphSVG(p);
+    } else if (p.type === 'points') {
+      $('prompt').innerHTML = `Write the function for the line through <span class="math">${pointHTML(p.x1, p.y1)}</span> and <span class="math">${pointHTML(p.x2, p.y2)}</span> in point-slope form.`;
+      $('visual').innerHTML = '';
+    } else {
+      $('prompt').innerHTML = `Write the function for the line with slope <span class="math">${slopeHTML(p.m)}</span> that passes through <span class="math">${pointHTML(p.x1, p.y1)}</span>, in point-slope form.`;
+      $('visual').innerHTML = '';
+    }
+    $('answer').value = '';
+    $('answer').disabled = false;
+    $('check').disabled = false;
+    $('skip').hidden = false;
+    $('preview').innerHTML = ''; $('preview').classList.remove('error');
+    $('feedback').hidden = true;
+    $('answer').focus();
+  }
+
+  function renderPreview() {
+    const el = $('preview');
+    el.classList.remove('error');
+    const src = $('answer').value;
+    if (!src.trim()) { el.innerHTML = ''; return; }
+    try {
+      const expr = parseFunction(src);
+      el.innerHTML = `Reading as <span class="math"><i>f</i>(${V('x')}) = ${showNode(expr)}</span>`;
+    } catch (e) {
+      if (!(e instanceof ParseError)) throw e;
+      el.innerHTML = '';
+    }
+  }
+
+  function workHTML(p) {
+    if (p.type === 'slope') return '';
+    const dy = p.y2 - p.y1, dx = p.x2 - p.x1;
+    const raw = fracHTML(`${num(p.y2)} ${MINUS} ${paren(p.y1)}`, `${num(p.x2)} ${MINUS} ${paren(p.x1)}`);
+    const simple = fracHTML(num(dy), num(dx));
+    const reduced = reduce(dy, dx);
+    const same = reduced.n === dy && reduced.d === dx;
+    return `<p class="work"><span class="math"><i>m</i> = ${raw} = ${simple}${same ? '' : ' = ' + slopeHTML(reduced)}</span></p>`;
+  }
+
+  function submit(ev) {
+    ev.preventDefault();
+    if (state.answered) { newProblem(); return; }
+    const src = $('answer').value;
+    let expr;
+    try { expr = parseFunction(src); }
+    catch (e) {
+      if (!(e instanceof ParseError)) throw e;
+      $('preview').classList.add('error');
+      $('preview').textContent = e.message || 'Type your function first.';
+      $('answer').focus();
+      return;
+    }
+    const p = state.prob;
+    const { status } = grade(expr, p);
+    const ok = status === 'correct';
+    state.answered = true;
+    state.total++;
+    if (ok) { state.correct++; state.streak++; } else state.streak = 0;
+    updateScore();
+
+    const reasons = {
+      'wrong-form': 'That\'s the right line, but it isn\'t in point-slope form.',
+      'close': 'Very close. Use exact fractions instead of rounded decimals.',
+      'not-linear': 'That function\'s graph isn\'t a line.',
+      'wrong': '',
+    };
+    const answers = [psHTML(p.m, p.x1, p.y1)];
+    if (p.type !== 'slope') answers.push(psHTML(p.m, p.x2, p.y2));
+    const fb = $('feedback');
+    fb.className = 'feedback ' + (ok ? 'good' : 'bad');
+    fb.innerHTML = ok
+      ? `<p class="verdict">Correct</p>
+         <div class="actions"><button type="button" id="next">Next problem</button><small>Moving on in a moment…</small></div>`
+      : `<p class="verdict">Not quite</p>
+         ${reasons[status] ? `<p>${reasons[status]}</p>` : ''}
+         <p>Correct answer:</p>
+         <p class="answer-line">${answers.join(' &nbsp;<span style="color:var(--muted);font-size:0.85em">or</span>&nbsp; ')}</p>
+         ${workHTML(p)}
+         <div class="actions"><button type="button" id="next">Next problem</button><small>or press Enter</small></div>`;
+    fb.hidden = false;
+    $('answer').disabled = true;
+    $('check').disabled = true;
+    $('skip').hidden = true;
+    $('next').addEventListener('click', newProblem);
+    $('next').focus();
+    if (ok) state.timer = setTimeout(newProblem, 1600);
+  }
+
+  $('form').addEventListener('submit', submit);
+  $('skip').addEventListener('click', newProblem);
+  document.querySelector('.field').addEventListener('click', () => $('answer').focus());
+  $('answer').addEventListener('input', renderPreview);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && state.answered && document.activeElement !== $('next')) { e.preventDefault(); newProblem(); }
+  });
+  for (const [k, box] of Object.entries(typeBoxes)) box.addEventListener('change', () => { store.set('type-' + k, box.checked); });
+  $('reset').addEventListener('click', () => { state.correct = state.total = state.streak = 0; updateScore(); });
+
+  updateScore();
+  newProblem();
+}
+</script>
